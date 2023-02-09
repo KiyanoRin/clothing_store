@@ -23,7 +23,13 @@ const User = sequelize.define('user', {
   },
   phone: {
     type: DataTypes.STRING(20),
-    allowNull: false
+    allowNull: false,
+    unique: true,
+    validate: {
+      isValidPhone: function isVietnamesePhoneNumber(number) {
+        return /([\+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/.test(number);
+      }
+    }
   }
 });
 
@@ -39,11 +45,14 @@ const Account = sequelize.define('account', {
   },
   email: {
     type: DataTypes.STRING(50),
-    allowNull: true
+    allowNull: true,
+    validate: {
+      isEmail: true
+    }
   },
   address: {
     type: DataTypes.STRING(200),
-    allowNull: false
+    allowNull: true
   },
   role: {
     type: DataTypes.ENUM('admin', 'loyal customer', 'regular customer', 'potential customer'),
@@ -209,18 +218,8 @@ Account.afterCreate((account, options) => {
   return LoyaltyProgram.create({ accountId: account.accountId, points: 0 });
 });
 
-const discount = 0.001;
-Order.afterCreate((order, options) => {
-  return LoyaltyProgram.findOne({ where: { accountId: order.accountId } })
-    .then(loyaltyProgram => {
-      loyaltyProgram.points += Math.round(order.totalPrice * discount);
-      return loyaltyProgram.save();
-    });
-});
-
 /* sequelize.sync()
   .then(() => console.log('Tables created successfully'))
   .catch(err => console.error('Unable to create tables', err)); */
-
 
 module.exports = {Account, Voucher, User, VariantItem, Item, Cart, Order, OrderItem, LoyaltyProgram, sequelize};

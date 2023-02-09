@@ -1,6 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
-const sequelize = new Sequelize('clothingstore', 'root', '', {
+const sequelize = new Sequelize('clothing_store', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
 });
@@ -145,8 +145,8 @@ const Cart = sequelize.define('Cart', {
   }
 });
 
-Item.belongsToMany(Account, { through: Cart, foreignKey: 'itemId' });
-Account.belongsToMany(Item, { through: Cart, foreignKey: 'accountId' });
+VariantItem.belongsToMany(Account, { through: Cart, foreignKey: 'variantItemId' });
+Account.belongsToMany(VariantItem, { through: Cart, foreignKey: 'accountId' });
 
 const Order = sequelize.define('Order', {
   orderId: {
@@ -167,7 +167,7 @@ const Order = sequelize.define('Order', {
     type: DataTypes.STRING,
     allowNull: false
   }
-},{
+},/* {
   getterMethods: {
     totalPrice: function() {
       return OrderItem.findAll({ where: { orderId: this.orderId } })
@@ -186,7 +186,7 @@ const Order = sequelize.define('Order', {
         });
     }
   }
-});
+} */);
 
 Order.belongsTo(User, { foreignKey: 'userId' });
 User.hasOne(Order, { foreignKey: 'userId' });
@@ -201,8 +201,8 @@ const OrderItem = sequelize.define('OrderItem', {
   }
 });
 
-Order.belongsToMany(Item, { through: OrderItem, foreignKey: 'orderId' });
-Item.belongsToMany(Order, { through: OrderItem, foreignKey: 'itemId' });
+Order.belongsToMany(VariantItem, { through: OrderItem, foreignKey: 'orderId' });
+VariantItem.belongsToMany(Order, { through: OrderItem, foreignKey: 'variantItemId' });
 
 const LoyaltyProgram = sequelize.define('LoyaltyProgram', {
   points: {
@@ -218,8 +218,8 @@ Account.afterCreate((account, options) => {
   return LoyaltyProgram.create({ accountId: account.accountId, points: 0 });
 });
 
-/* sequelize.sync()
+sequelize.sync()
   .then(() => console.log('Tables created successfully'))
-  .catch(err => console.error('Unable to create tables', err)); */
+  .catch(err => console.error('Unable to create tables', err));
 
 module.exports = {Account, Voucher, User, VariantItem, Item, Cart, Order, OrderItem, LoyaltyProgram, sequelize};

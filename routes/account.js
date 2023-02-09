@@ -1,10 +1,25 @@
+require("dotenv").config();
+
 const express = require('express');
 const router = express.Router();
-const {Account} = require('../models/db');
+const {Account, User} = require('../models/db');
+const jwt = require('jsonwebtoken');
+
+// Middleware function to verify the JWT
+const verifyToken = (req, res, next) => {
+  const token = req.header('Authorization');
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.accountId = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'log in please' });
+  }
+};
 
 // GET a single account by ID
-router.get('/', (req, res) => {
-  Account.findByPk(req.query.accountId)
+router.get('/',verifyToken, (req, res) => {
+  Account.findByPk(req.accountId)
     .then(account => {
       if (!account) {
         return res.status(404).json({
@@ -23,7 +38,8 @@ router.get('/', (req, res) => {
     });
 });
 
-// POST a new account
+
+/* // POST a new account
 router.post('/', (req, res) => {
 
    Account.create(req.body)
@@ -38,7 +54,7 @@ router.post('/', (req, res) => {
         error: error
       });
     }); 
-});
+}); */
 
 // PUT (update) an existing account
 router.put('/', (req, res) => {
@@ -60,7 +76,7 @@ router.put('/', (req, res) => {
 });
 
 
-// DELETE a specific account
+/* // DELETE a specific account
 router.delete('/', (req, res) => {
   Account.destroy({ where: { accountId: req.query.accountId } })
     .then(() => {
@@ -73,9 +89,9 @@ router.delete('/', (req, res) => {
         error: error
       });
     });
-});
+}); */
 
-// GET all accounts
+/* // GET all accounts
 router.get('/', (req, res) => {
   Account.findAll()
     .then(accounts => {
@@ -89,6 +105,6 @@ router.get('/', (req, res) => {
         error: error
       });
     });
-});
+}); */
 
 module.exports = router;

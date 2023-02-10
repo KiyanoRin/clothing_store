@@ -1,10 +1,62 @@
+require("dotenv").config();
+
 const express = require('express');
 const router = express.Router();
-const {Item, VariantItem} = require('../models/db');
+const {Item, VariantItem, Cart, sequelize} = require('../models/db');
+const jwt = require('jsonwebtoken');
+
+// Middleware function to verify the JWT
+const verifyToken = (req, res, next) => {
+  const token = req.header('Authorization');
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.accountId = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'log in please' });
+  }
+};
 
 // GET all items
 router.get('/', (req, res) => {
     Item.findAll ()
+    .then(items => {
+        res.status(200).json({
+            message: 'Successfully retrieved all accounts',
+            items
+          });
+    })
+    .catch(error => {
+      res.status(500).json({
+        error: error
+      });
+    });
+});
+
+// add item to cart
+router.post('/:itemId',verifyToken, (req, res) => {
+  const quantity = req.body.quantity;
+  Cart.create({
+    quantity: quantity,
+    accountId: req.accountId,
+    variantItemId: req.params.itemId
+  })
+  .then(cart => {
+    res.status(201).json({
+      message: 'Successfully add item to cart',
+      cart
+    });
+  })
+  .catch(error => {
+    res.status(400).json({
+      error: error
+    });
+  }); 
+});
+
+//GET by category
+router.get('/:category', (req, res) => {
+  Item.findAll ({where: {category: req.params.category}})
     .then(items => {
         res.status(200).json({
             message: 'Successfully retrieved all accounts',
@@ -28,7 +80,7 @@ router.get('/:itemId', (req, res) => {
   })
   .then(items => {
       res.status(200).json({
-          message: 'Successfully retrieved all accounts',
+          message: 'Successfully retrieved all ',
           items
         });
   })

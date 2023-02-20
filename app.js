@@ -8,10 +8,16 @@ var indexRouter = require('./routes/index');
 var accountRouter = require('./routes/account');
 var voucherRouter = require('./routes/voucher');
 var itemRouter = require('./routes/item');
-
-/* var cartRouter = require('./routes/cart');
+var cartRouter = require('./routes/cart');
 var orderRouter = require('./routes/order');
-var loyaltyProgramRouter = require('./routes/loyaltyProgram'); */
+
+var adminItemRouter = require('./routes/ADMIN/item');
+var adminAccountRouter = require('./routes/ADMIN/account');
+var adminVoucherRouter = require('./routes/ADMIN/voucher');
+var adminOrderRouter = require('./routes/ADMIN/order');
+
+const { verifyToken } = require('./middleware/verify');
+const { isAdmin } = require('./middleware/isAdmin');
 
 
 var app = express();
@@ -27,13 +33,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/account', accountRouter);
+app.use('/account',verifyToken, accountRouter);
 app.use('/voucher', voucherRouter);
 app.use('/item', itemRouter);
-/* app.use('/cart', cartRouter);
-app.use('/order', orderRouter);
-app.use('/loyaltyProgram', loyaltyProgramRouter); */
+app.use('/cart',verifyToken, cartRouter);
+app.use('/order',verifyToken, orderRouter);
 
+app.use('/1/item',verifyToken ,isAdmin, adminItemRouter);
+app.use('/1/account',verifyToken ,isAdmin, adminAccountRouter);
+app.use('/1/voucher',verifyToken ,isAdmin, adminVoucherRouter);
+app.use('/1/order',verifyToken ,isAdmin, adminOrderRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -4,10 +4,9 @@ const {Voucher} = require('../models/db');
 
 // GET all accounts
 router.get('/', (req, res) => {
-    Voucher.findAll()
+    Voucher.findAll({attributes: ['voucherId', 'discount', 'limit']})
     .then(voucher => {
       res.status(200).json({
-        message: 'Successfully retrieved all accounts',
         voucher
       });
     })

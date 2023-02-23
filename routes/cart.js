@@ -16,7 +16,9 @@ router.get('/', async (req, res) => {
         const variantItem = await VariantItem.findByPk(variantItemId);
         const item = await Item.findByPk(variantItem.itemId);
     
+        
         return {
+          itemId: item.itemId,
           quantity,
           name: item.name,
           description: item.description,

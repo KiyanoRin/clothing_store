@@ -3,6 +3,7 @@ const router = express.Router();
 const { Item, VariantItem, Cart, sequelize } = require("../models/db");
 const { verifyToken } = require("../middleware/verify");
 const map_cat_id = require("../constant/catagory");
+const { where } = require("sequelize");
 
 const limit = parseInt(process.env.LIMIT_PAGE); // Number of items to display per page
 
@@ -51,12 +52,16 @@ router.get("/:itemId", (req, res) => {
 });
 
 // add item to cart
-router.post("/:itemId", verifyToken, async (req, res) => {
+router.post("/:itemId",verifyToken, async (req, res) => {
   try {
     const itemId = req.params.itemId;
     const accountId = res.locals.decoded.accountId;
-    const variantItem = await VariantItem.findByPk(itemId);
-    const quantity = req.body.quantity;
+    const {quantity, size} = req.body;
+
+    const variantItem = await VariantItem.findOne({where: {
+      itemId,
+      size
+    }});
 
     if (variantItem.quantity < quantity) {
       return res.status(400).json({

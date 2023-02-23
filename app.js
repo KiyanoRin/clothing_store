@@ -8,7 +8,7 @@ var indexRouter = require("./routes/index");
 var accountRouter = require("./routes/account");
 var voucherRouter = require("./routes/voucher");
 var itemRouter = require("./routes/item");
-// var cartRouter = require("./routes/cart");
+var cartRouter = require("./routes/cart");
 var orderRouter = require("./routes/order");
 
 var adminItemRouter = require("./routes/ADMIN/item");
@@ -35,7 +35,7 @@ app.use("/", indexRouter);
 app.use("/account", verifyToken, accountRouter);
 app.use("/voucher", voucherRouter);
 app.use("/item", itemRouter);
-// app.use('/cart',verifyToken, cartRouter);
+app.use('/cart',verifyToken, cartRouter);
 app.use("/order", verifyToken, orderRouter);
 
 app.use("/1/item", verifyToken, isAdmin, adminItemRouter);

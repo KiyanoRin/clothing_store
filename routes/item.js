@@ -72,7 +72,7 @@ router.post("/:itemId",verifyToken, async (req, res) => {
     await Cart.create({
       quantity: quantity,
       accountId: accountId,
-      variantItemId: itemId,
+      variantItemId: variantItem.VariantItemId
     });
 
     res.status(201).json({

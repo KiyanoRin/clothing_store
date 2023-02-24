@@ -39,47 +39,16 @@ router.get('/', async (req, res) => {
   }
 });
 
-// delete item to cart
-/* req có dạng như sau 
-{
-  "items": [
-      {
-          "itemId": "1",
-          "size": "L"
-      },
-      {
-          "itemId":"1",
-          "size":"M"
-      },
-      {
-          "itemId":"3",
-          "size":"M"
-      }
-  ]
-} */
-router.delete("/", async (req, res) => {
-  const { items } = req.body;
+//clear items in cart for accountId
+router.delete('/', async (req, res) => {
   try {
-    const promises = items.map(async item => {
-      const variantItem = await VariantItem.findOne({
-        where: {
-          itemId: item.itemId,
-          size: item.size
-        }
-      });
-
-      await Cart.destroy({
-        where: {
-          accountId: res.locals.decoded.accountId,
-          VariantItemId: variantItem.VariantItemId
-        }
-      });
+    // Delete all carts for the account
+    await Cart.destroy({
+      where: { accountId: res.locals.decoded.accountId }
     });
 
-    await Promise.all(promises);
-
-    res.status(201).json({
-      message: "Successfully delete item to cart",
+    res.status(200).json({
+      message: 'All items have been removed from the cart.'
     });
   } catch (error) {
     res.status(500).json({
@@ -87,6 +56,7 @@ router.delete("/", async (req, res) => {
     });
   }
 });
+
 
 
 module.exports = router;
